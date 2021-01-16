@@ -28,12 +28,18 @@
 
       <el-table-column prop="type"  label="属性的类型"  width="180" :formatter="formatterIsType"> </el-table-column>
 
-      <el-table-column prop="isDel"  label="是否展示"  width="180" :formatter="formatterIsdel"> </el-table-column>
+      <el-table-column prop="isDel"  label="是否展示"  width="80" :formatter="formatterIsdel"> </el-table-column>
 
       <el-table-column label="操作">
         <template slot-scope="scope">
           <el-button icon="el-icon-edit"  circle size="mini" type="danger"
-                     @click="handleEdit(scope.$index, scope.row)">修改</el-button>
+                     @click="handleEdit(scope.$index, scope.row)">
+            修改
+          </el-button>
+          <el-button icon="el-icon-edit"  circle size="mini" type="danger"
+                     @click="handleDel(scope.$index, scope.row)">
+            删除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -49,7 +55,7 @@
 
     <!--   新增模板-->
     <el-dialog title="新增品牌"  :visible.sync="addHtml"  >
-      <el-form ref="addForm" :model="addForm" label-width="180px"  >
+      <el-form ref="addForm" :rules="rules" :model="addForm" label-width="180px"  >
 
 
         <el-form-item label="属性名称" prop="name">
@@ -57,7 +63,7 @@
         </el-form-item>
 
 
-        <el-form-item label="属性中文名" prop="bandE">
+        <el-form-item label="属性中文名" prop="nameCH">
           <el-input v-model="addForm.nameCH"></el-input>
         </el-form-item>
 
@@ -86,7 +92,7 @@
 
 
         <el-form-item>
-          <el-button type="primary" @click="addSubmit">立即新增</el-button>
+          <el-button type="primary" @click="addSubmit('addForm')">立即新增</el-button>
           <el-button @click="addRest('addForm')">取消</el-button>
         </el-form-item>
       </el-form>
@@ -94,7 +100,7 @@
 
     <!--   修改品牌模板-------------------->
     <el-dialog title="修改品牌"  :visible.sync="updateHtml">
-      <el-form ref="updateFrom" :model="updateForm" label-width="180px"  >
+      <el-form ref="updateFrom"  :rules="rules" :model="updateForm" label-width="180px"  >
 
 
         <el-form-item label="属性名称" prop="name">
@@ -102,7 +108,7 @@
         </el-form-item>
 
 
-        <el-form-item label="属性中文名" prop="bandE">
+        <el-form-item label="属性中文名" prop="nameCH">
           <el-input v-model="updateForm.nameCH"></el-input>
         </el-form-item>
 
@@ -136,7 +142,7 @@
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" @click="updateSubmit">立即修改</el-button>
+          <el-button type="primary" @click="updateSubmit('updateFrom')">立即修改</el-button>
           <el-button @click="addRest('updateFrom')">取消</el-button>
         </el-form-item>
       </el-form>
@@ -176,7 +182,20 @@
         count:0,
         addHtml:false,
         updateHtml:false,
-        ccg:true
+        ccg:true,
+        rules: {
+          name: [
+            { required: true, message: '请输入属性名称', trigger: 'blur' },
+            { min: 2, max: 15, message: '长度在 2 到 15 个字符', trigger: 'blur' }
+          ],
+          nameCH: [
+            { required: true, message: '请输入属性中文名称', trigger: 'blur' },
+            { min: 2, max: 15, message: '长度在 2 到 15 个字符', trigger: 'blur' }
+          ],
+          typeId: [
+            { required: true, message: '请选择一个类型', trigger: 'change' }
+          ]
+        }
       }
     },
     created:function () {
@@ -197,6 +216,26 @@
         this.updateHtml=true;
         this.updateForm=row;
       },
+      handleDel:function (index,row) {
+        this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+          center: true
+        }).then(() => {
+          this.$ajax.delete("http://localhost:8083/api/property/delete?id="+row.id).then(
+            function (res) {
+              console.log(res);
+              location.reload();
+            }
+          ).catch(err=>console.log(err))
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });
+        });
+      },
       quertShopPropertyData:function () {
         var qthis=this;
         this.$ajax.get("http://localhost:8083/api/property/getData?"+this.$qs.stringify(this.eachFrom)).then(
@@ -216,23 +255,38 @@
       addBrand:function () {
         this.addHtml=true;
       },
-      addSubmit:function () {
-        this.$ajax.post("http://localhost:8083/api/property/add",this.$qs.stringify(this.addForm)).then((res)=>{
-            console.log(res);
-            this.addHtml=false;
-            location.reload();
+      addSubmit:function (addForm) {
+        this.$refs[addForm].validate((valid) => {
+          if (valid) {
+            this.$ajax.post("http://localhost:8083/api/property/add",this.$qs.stringify(this.addForm)).then((res)=>{
+                console.log(res);
+                this.addHtml=false;
+                location.reload();
+              }
+            ).catch(err=>console.log(err))
+          } else {
+            console.log('error submit!!');
+            return false;
           }
-        ).catch(err=>console.log(err))
+        });
+
       },
-      updateSubmit:function(){
-        this.updateForm.imgpath = this.updateForm.imgpaths;
-        console.log(this.updateForm);
-        this.$ajax.post("http://localhost:8083/api/property/update",this.$qs.stringify(this.updateForm)).then((res)=>{
-            console.log(res);
-            this.updateHtml=false;
-            location.reload();
+      updateSubmit:function(updateFrom){
+        this.$refs[updateFrom].validate((valid) => {
+          if (valid) {
+            this.updateForm.imgpath = this.updateForm.imgpaths;
+            console.log(this.updateForm);
+            this.$ajax.post("http://localhost:8083/api/property/update",this.$qs.stringify(this.updateForm)).then((res)=>{
+                console.log(res);
+                this.updateHtml=false;
+                location.reload();
+              }
+            ).catch(err=>console.log(err))
+          } else {
+            console.log('error submit!!');
+            return false;
           }
-        ).catch(err=>console.log(err))
+        });
       },
       addRest:function (addFrom) {
         this.addHtml=false;
