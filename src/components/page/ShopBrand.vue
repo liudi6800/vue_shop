@@ -62,7 +62,7 @@
             class="avatar-uploader"
             action="http://localhost:8083/api/brand/uploadImgPath"
             :show-file-list="false"
-            :on-success="updateuploadSucces">
+            :on-success="uploadSucces">
             <img v-if="imagPath" :src="imagPath"  class="avatar" v-model="addForm.imgpaths">
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
           </el-upload>
