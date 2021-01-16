@@ -22,7 +22,7 @@
 
         <el-table-column  prop="imgpath" label="图片log"  width="180">
           <template slot-scope="scope">
-            <img style="width: 100px; height: 100px"  :src="'http://localhost:8083'+scope.row.imgpath"  />
+            <img   style="width: 100px; height: 100px"  :src="scope.row.imgpath"  />
           </template>
         </el-table-column>
 
@@ -57,13 +57,13 @@
           <el-input v-model="addForm.bandE"></el-input>
         </el-form-item>
 
-        <el-form-item label="品牌Log" prop="imgpath">
+        <el-form-item label="品牌Log" prop="imgpaths">
           <el-upload
             class="avatar-uploader"
-            action="http://192.168.1.224:8083/api/brand/uploadImgPath"
+            action="http://localhost:8083/api/brand/uploadImgPath"
             :show-file-list="false"
-            :on-success="uploadSucces">
-            <img v-if="imagPath" :src="'http://localhost:8083'+imagPath"  class="avatar" v-model="addForm.imgpath">
+            :on-success="updateuploadSucces">
+            <img v-if="imagPath" :src="imagPath"  class="avatar" v-model="addForm.imgpaths">
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
           </el-upload>
         </el-form-item>
@@ -111,10 +111,10 @@
           <el-form-item label="品牌Log" prop="imgpaths">
             <el-upload
               class="avatar-uploader"
-              action="http://192.168.1.224:8083/api/brand/uploadImgPath"
+              action="http://localhost:8083/api/brand/uploadImgPath"
               :show-file-list="false"
               :on-success="updateuploadSucces">
-              <img v-if="imagPath" :src="'http://localhost:8083'+imagPath"  class="avatar" v-model="updateForm.imgpaths">
+              <img v-if="imagPath" :src="imagPath"  class="avatar" v-model="updateForm.imgpaths">
               <i v-else class="el-icon-plus avatar-uploader-icon"></i>
             </el-upload>
           </el-form-item>
@@ -172,6 +172,7 @@
               bandDesc:"",
               ord:"",
               isdel:"0",
+              imgpaths:""
             },
             eachFrom:{
               page:"1",
@@ -204,7 +205,7 @@
         },
         quertShopBrandData:function () {
           var qthis=this;
-          this.$ajax.get("http://192.168.1.224:8083/api/brand/getData?"+this.$qs.stringify(this.eachFrom)).then(
+          this.$ajax.get("http://localhost:8083/api/brand/getData?"+this.$qs.stringify(this.eachFrom)).then(
             function (res) {
               qthis.data=res.data.data.data;
               qthis.count=res.data.data.count;
@@ -212,14 +213,11 @@
           ).catch(err=>console.log(err))
         },
         addBrand:function () {
-          this.$nextTick(()=>{
-            this.$refs[addForm].resetFields();
-          })
           this.imagPath="";
           this.addHtml=true;
         },
         addSubmit:function () {
-          this.$ajax.post("http://192.168.1.224:8083/api/brand/add",this.$qs.stringify(this.addForm)).then((res)=>{
+          this.$ajax.post("http://localhost:8083/api/brand/add",this.$qs.stringify(this.addForm)).then((res)=>{
               console.log(res);
               this.addHtml=false;
               location.reload();
@@ -227,8 +225,9 @@
           ).catch(err=>console.log(err))
         },
         updateSubmit:function(){
+          this.updateForm.imgpath = this.updateForm.imgpaths
           console.log(this.updateForm);
-          this.$ajax.post("http://192.168.1.224:8083/api/brand/update",this.$qs.stringify(this.updateForm)).then((res)=>{
+          this.$ajax.post("http://localhost:8083/api/brand/update",this.$qs.stringify(this.updateForm)).then((res)=>{
               console.log(res);
               this.updateHtml=false;
               location.reload();
@@ -236,10 +235,12 @@
           ).catch(err=>console.log(err))
         },
         uploadSucces:function (a) {
+          debugger;
          this.addForm.imgpath=a.data;
           this.imagPath=a.data;
         },
         updateuploadSucces:function (a) {
+          debugger;
           this.updateForm.imgpaths=a.data;
           this.imagPath=a.data;
         },

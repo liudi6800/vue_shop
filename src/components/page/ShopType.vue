@@ -102,7 +102,7 @@
       },
       created:function () {
 
-      this.$ajax.get("http://192.168.1.224:8083/api/type/getData").then(res=>{
+      this.$ajax.get("http://localhost:8083/api/type/getData").then(res=>{
         this.ajaxData=res.data.data;
         this.queryParent();
 
@@ -180,10 +180,10 @@
 
         },
         onSubmit:function () {
-          this.$ajax.post(" http://192.168.1.224:8083/api/type/add",this.$qs.stringify(this.addForm)).then((res)=>location.reload()).catch(err=>console.log(err))
+          this.$ajax.post(" http://localhost:8083/api/type/add",this.$qs.stringify(this.addForm)).then((res)=>location.reload()).catch(err=>console.log(err))
         },
         updateSubmit:function () {
-          this.$ajax.post(" http://192.168.1.224:8083/api/type/update",this.$qs.stringify(this.updateFrom)).then((res)=>location.reload()).catch(err=>console.log(err))
+          this.$ajax.post(" http://localhost:8083/api/type/update",this.$qs.stringify(this.updateFrom)).then((res)=>location.reload()).catch(err=>console.log(err))
 
         }
       }

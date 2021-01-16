@@ -73,6 +73,10 @@ export default {
                       {
                         index: 'shopBrand',
                         title: '商品品牌'
+                      },
+                      {
+                        index: 'shopProperty',
+                        title: '商品属性'
                       }
 
                     ]
