@@ -16,17 +16,17 @@
     <el-table  :data="data"  style="width: 100%">
       <el-table-column type="selection" width="55"> </el-table-column>
 
-      <el-table-column prop="id"  label="序号" width="180"> </el-table-column>
+      <el-table-column prop="id"  label="序号" width="80"> </el-table-column>
 
-      <el-table-column  prop="name"  label="属性名称"  width="180"> </el-table-column>
+      <el-table-column  prop="name"  label="属性名称"  width="80"> </el-table-column>
 
-      <el-table-column  prop="nameCH"  label="属性中文名 "   width="180">  </el-table-column>
+      <el-table-column  prop="nameCH"  label="属性中文名 "   width="110">  </el-table-column>
 
-      <el-table-column   prop="typeId" label="分类名称" width="180"   >  </el-table-column>
+      <el-table-column   prop="typeId" label="分类名称" width="110"   :formatter="formattertypeId">  </el-table-column>
 
-      <el-table-column   prop="isSKU" label="是否为Sku" width="180"  :formatter="formatterIsSku">  </el-table-column>
+      <el-table-column   prop="isSKU" label="是否为Sku" width="110"  :formatter="formatterIsSku">  </el-table-column>
 
-      <el-table-column prop="type"  label="属性的类型"  width="180" :formatter="formatterIsType"> </el-table-column>
+      <el-table-column prop="type"  label="属性的类型"  width="110" :formatter="formatterIsType"> </el-table-column>
 
       <el-table-column prop="isDel"  label="是否展示"  width="80" :formatter="formatterIsdel"> </el-table-column>
 
@@ -157,6 +157,7 @@
     data(){
       return{
         data:[],
+        shopTyeps:[],
         shopTyep:[],
         addForm:{
           name:"",
@@ -248,9 +249,29 @@
       queryShopType:function(){
         var tthis=this;
         this.$ajax.get("http://localhost:8083/api/type/getData").then(function (res) {
-          console.log(res);
-          tthis.shopTyep=res.data.data;
+          tthis.shopTyeps=res.data.data;
+          var shopData=res.data.data;
+          debugger;
+          for (let i = 0; i <shopData.length ; i++) {
+            var rf=tthis.isPrent(shopData[i]);
+            var data ={};
+            if(rf==false){
+            data.id=shopData[i].id;
+            data.name=shopData[i].name;
+              tthis.shopTyep.push(data);
+            }
+          }
+
         })
+      },
+      isPrent:function(data){
+        for (let i = 0; i <this.shopTyeps.length ; i++) {
+          if(data.id==this.shopTyeps[i].pid){
+            return  true;
+          }
+        }
+        return false;
+
       },
       addBrand:function () {
         this.addHtml=true;
@@ -310,6 +331,13 @@
       },
       formatterIsType:function (a,b,c,d) {
         return c==0?"下拉框": c==1?"单选框": c==2?"复选框": c==3?"输入框":"";
+      },
+      formattertypeId:function (a,b,c,d) {
+        for (let i = 0; i <this.shopTyep.length ; i++) {
+          if(c==this.shopTyep[i].id){
+            return this.shopTyep[i].name;
+          }
+        }
       }
     }
   }
