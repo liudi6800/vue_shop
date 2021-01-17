@@ -14,23 +14,23 @@
 
 
     <el-table  :data="data"  style="width: 100%">
-      <el-table-column type="selection" width="55"> </el-table-column>
+      <el-table-column type="selection" width="55" align="center" > </el-table-column>
 
-      <el-table-column prop="id"  label="序号" width="80"> </el-table-column>
+      <el-table-column prop="id"  align="center"  label="序号" width="80"> </el-table-column>
 
-      <el-table-column  prop="name"  label="属性名称"  width="80"> </el-table-column>
+      <el-table-column  prop="name"  align="center"  label="属性名称"  width="80"> </el-table-column>
 
-      <el-table-column  prop="nameCH"  label="属性中文名 "   width="110">  </el-table-column>
+      <el-table-column  prop="nameCH" align="center"   label="属性中文名 "   width="110">  </el-table-column>
 
-      <el-table-column   prop="typeId" label="分类名称" width="110"   :formatter="formattertypeId">  </el-table-column>
+      <el-table-column   prop="typeId" align="center"  label="分类名称" width="110"   :formatter="formattertypeId">  </el-table-column>
 
-      <el-table-column   prop="isSKU" label="是否为Sku" width="110"  :formatter="formatterIsSku">  </el-table-column>
+      <el-table-column   prop="isSKU"  align="center" label="是否为Sku" width="110"  :formatter="formatterIsSku">  </el-table-column>
 
-      <el-table-column prop="type"  label="属性的类型"  width="110" :formatter="formatterIsType"> </el-table-column>
+      <el-table-column prop="type"  align="center"  label="属性的类型"  width="110" :formatter="formatterIsType"> </el-table-column>
 
-      <el-table-column prop="isDel"  label="是否展示"  width="80" :formatter="formatterIsdel"> </el-table-column>
+      <el-table-column prop="isDel"  align="center"  label="是否展示"  width="80" :formatter="formatterIsdel"> </el-table-column>
 
-      <el-table-column label="操作">
+      <el-table-column label="操作" align="center" width="180">
         <template slot-scope="scope">
           <el-button icon="el-icon-edit"  circle size="mini" type="danger"
                      @click="handleEdit(scope.$index, scope.row)">

@@ -49,7 +49,7 @@
 
       <!--   新增模板-->
       <el-dialog title="新增品牌"  :visible.sync="addHtml"  >
-      <el-form ref="addForm" :model="addForm" label-width="180px"  >
+      <el-form ref="addForm" :rules="rules" :model="addForm" label-width="180px"  >
         <el-form-item label="品牌名称" prop="name">
           <el-input v-model="addForm.name"></el-input>
         </el-form-item>
@@ -82,7 +82,7 @@
         </el-form-item>
 
         <el-form-item label="品牌排序" prop="ord">
-          <el-input v-model="addForm.ord"></el-input>
+          <el-input-number v-model="addForm.ord"   :min="0"    ></el-input-number>
         </el-form-item>
 
         <el-form-item label="是否显示" prop="isdel">
@@ -91,7 +91,7 @@
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" @click="addSubmit">立即新增</el-button>
+          <el-button type="primary" @click="addSubmit('addForm')">立即新增</el-button>
           <el-button @click="addRest('addForm')">取消</el-button>
         </el-form-item>
       </el-form>
@@ -99,8 +99,8 @@
 
       <!--   修改品牌模板-------------------->
       <el-dialog title="修改品牌"  :visible.sync="updateHtml">
-        <el-form ref="updateForm"  :model="updateForm" label-width="180px">
-          <el-input v-model="updateForm.id" disabled></el-input>
+        <el-form ref="updateForm" :rules="rules"  :model="updateForm" label-width="180px">
+
           <el-form-item label="品牌名称" prop="name">
             <el-input v-model="updateForm.name"></el-input>
           </el-form-item>
@@ -132,7 +132,7 @@
 
           </el-form-item >
           <el-form-item label="品牌排序" prop="ord">
-            <el-input v-model="updateForm.ord"></el-input>
+            <el-input-number v-model="updateForm.ord"    :min="0" ></el-input-number>
           </el-form-item>
 
           <el-form-item label="是否显示" prop="isdel">
@@ -141,7 +141,7 @@
           </el-form-item>
 
           <el-form-item>
-            <el-button type="primary" @click="updateSubmit">立即修改</el-button>
+            <el-button type="primary" @click="updateSubmit('updateForm')">立即修改</el-button>
             <el-button type="primary" @click="updateRest('updateForm')">取消</el-button>
           </el-form-item>
 
@@ -156,12 +156,25 @@
       data(){
           return{
             data:[],
+            rules: {
+              name: [
+                { required: true, message: '请输入品牌名称', trigger: 'blur' },
+                { min: 2, max: 15, message: '长度在 2 到 15 个字符', trigger: 'blur' }
+              ],
+              bandE: [
+                { required: true, message: '请输入品牌首字母', trigger: 'blur' },
+                { min: 1, max: 1, message: '长度至少一位最多一位', trigger: 'blur' }
+              ],
+              isdel: [
+                { required: true, message: '请选择是否显示', trigger: 'change' }
+              ]
+            },
             addForm:{
               name:"",
               imgpath:"",
               bandE:"",
               bandDesc:"",
-              ord:"",
+              ord:"0",
               isdel:"0"
             },
             updateForm:{
@@ -170,7 +183,7 @@
               imgpath:"",
               bandE:"",
               bandDesc:"",
-              ord:"",
+              ord:"0",
               isdel:"0",
               imgpaths:""
             },
@@ -198,10 +211,13 @@
           this.quertShopBrandData();
         },
         handleEdit:function (index,row) {
+          debugger;
           this.updateHtml=true;
           this.imagPath="";
           this.updateForm=row;
           this.imagPath=row.imgpath;
+          this.updateForm.imgpaths=row.imgpath;
+
         },
         quertShopBrandData:function () {
           var qthis=this;
@@ -216,23 +232,40 @@
           this.imagPath="";
           this.addHtml=true;
         },
-        addSubmit:function () {
-          this.$ajax.post("http://localhost:8083/api/brand/add",this.$qs.stringify(this.addForm)).then((res)=>{
-              console.log(res);
-              this.addHtml=false;
-              location.reload();
-          }
-          ).catch(err=>console.log(err))
-        },
-        updateSubmit:function(){
-          this.updateForm.imgpath = this.updateForm.imgpaths
-          console.log(this.updateForm);
-          this.$ajax.post("http://localhost:8083/api/brand/update",this.$qs.stringify(this.updateForm)).then((res)=>{
-              console.log(res);
-              this.updateHtml=false;
-              location.reload();
+        addSubmit:function (addForm) {
+
+          this.$refs[addForm].validate((valid) => {
+            if (valid) {
+              this.$ajax.post("http://localhost:8083/api/brand/add",this.$qs.stringify(this.addForm)).then((res)=>{
+                  console.log(res);
+                  this.addHtml=false;
+                  location.reload();
+                }
+              ).catch(err=>console.log(err))
+            } else {
+              console.log('error submit!!');
+              return false;
             }
-          ).catch(err=>console.log(err))
+          });
+
+        },
+        updateSubmit:function(updateForm){
+
+          this.$refs[updateForm].validate((valid) => {
+            if (valid) {
+              this.updateForm.imgpath = this.updateForm.imgpaths;
+              console.log(this.updateForm);
+              this.$ajax.post("http://localhost:8083/api/brand/update",this.$qs.stringify(this.updateForm)).then((res)=>{
+                  console.log(res);
+                  this.updateHtml=false;
+                  this.quertShopBrandData();
+                }
+              ).catch(err=>console.log(err))
+            } else {
+              console.log('error submit!!');
+              return false;
+            }
+          });
         },
         uploadSucces:function (a) {
           debugger;
