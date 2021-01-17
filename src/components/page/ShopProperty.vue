@@ -22,7 +22,7 @@
 
       <el-table-column  prop="nameCH" align="center"   label="属性中文名 "   width="110">  </el-table-column>
 
-      <el-table-column   prop="typeId" align="center"  label="分类名称" width="110"   :formatter="formattertypeId">  </el-table-column>
+      <el-table-column   prop="typeId" align="center"  label="分类名称" width="170"   :formatter="formattertypeId">  </el-table-column>
 
       <el-table-column   prop="isSKU"  align="center" label="是否为Sku" width="110"  :formatter="formatterIsSku">  </el-table-column>
 
@@ -30,7 +30,7 @@
 
       <el-table-column prop="isDel"  align="center"  label="是否展示"  width="80" :formatter="formatterIsdel"> </el-table-column>
 
-      <el-table-column label="操作" align="center" width="180">
+      <el-table-column label="操作" align="center" width="380">
         <template slot-scope="scope">
           <el-button icon="el-icon-edit"  circle size="mini" type="danger"
                      @click="handleEdit(scope.$index, scope.row)">
@@ -39,6 +39,10 @@
           <el-button icon="el-icon-edit"  circle size="mini" type="danger"
                      @click="handleDel(scope.$index, scope.row)">
             删除
+          </el-button>
+          <el-button icon="el-icon-edit"  circle size="mini" type="danger"
+                     @click="setValue(scope.$index, scope.row)">
+            设置参数值
           </el-button>
         </template>
       </el-table-column>
@@ -70,7 +74,7 @@
         <el-form-item label="分类类型" prop="typeId">
         <el-select v-model="addForm.typeId" placeholder="请选择">
           <el-option
-            v-for="item in shopTyep"
+            v-for="item in shopTyepsss"
             :key="item.id"
             :label="item.name"
             :value="item.id">
@@ -116,7 +120,7 @@
         <el-form-item label="分类类型" prop="typeId">
           <el-select v-model="updateForm.typeId" placeholder="请选择">
             <el-option
-              v-for="item in shopTyep"
+              v-for="item in shopTyepsss"
               :key="item.id"
               :label="item.name"
               :value="item.id">
@@ -148,6 +152,79 @@
       </el-form>
 
     </el-dialog>
+
+    <!-------------------------------------设置属性值的所有模板---------------------------------------->
+
+    <el-dialog    :title="proName" :visible.sync="setValueHtml" width="1000px">
+      <el-button type="primary" @click="addValuea">新增{{proName}}</el-button>
+      <el-table :data="proValue">
+        <el-table-column property="id" label="序号" width="150"></el-table-column>
+        <el-table-column property="name" label="属性名" width="200"></el-table-column>
+        <el-table-column property="nameCH" label="属性中文名"></el-table-column>
+
+        <el-table-column label="操作" align="center" width="380">
+          <template slot-scope="scope">
+            <el-button icon="el-icon-edit"  circle size="mini" type="danger"
+                       @click="updateValuea(scope.$index, scope.row)">
+              修改{{proName}}
+            </el-button>
+
+            <el-button icon="el-icon-edit"  circle size="mini" type="danger"
+                       @click="delValuea(scope.$index, scope.row)">
+              删除{{proName}}
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
+
+
+    <!--   新增模板-->
+    <el-dialog title="新增属性值"  :visible.sync="addValueHtml"  >
+      <el-form ref="addproValue" :rules="rules" :model="addproValue" label-width="180px"  >
+
+
+        <el-form-item label="属性值名称" prop="name">
+          <el-input v-model="addproValue.name"></el-input>
+        </el-form-item>
+
+        <el-form-item label="属性值中文名" prop="nameCH">
+          <el-input v-model="addproValue.nameCH"></el-input>
+        </el-form-item>
+
+        <el-form-item>
+          <el-button type="primary" @click="addproValueSubmit('addproValue')">立即新增</el-button>
+
+        </el-form-item>
+      </el-form>
+    </el-dialog>
+
+
+    <!--   修改模板-->
+    <el-dialog title="修改属性值"  :visible.sync="updateValueHtml"  >
+      <el-form ref="updateproValue" :rules="rules" :model="updateproValue" label-width="180px"  >
+
+        <el-form-item label="属性值名称" prop="name">
+          <el-input v-model="updateproValue.name"></el-input>
+        </el-form-item>
+
+        <el-form-item label="属性值中文名" prop="nameCH">
+          <el-input v-model="updateproValue.nameCH"></el-input>
+        </el-form-item>
+
+        <el-form-item>
+          <el-button type="primary" @click="updateValueSubmit('updateproValue')">立即修改</el-button>
+
+        </el-form-item>
+      </el-form>
+    </el-dialog>
+
+
+
+
+
+
+
   </div>
 </template>
 
@@ -159,6 +236,16 @@
         data:[],
         shopTyeps:[],
         shopTyep:[],
+        shopTyepsss:[],
+        proValue:[],
+        addproValue:{
+          name:"",
+          nameCH:""
+        },
+        updateproValue:{
+          name:"",
+          nameCH:""
+        },
         addForm:{
           name:"",
           nameCH:"",
@@ -183,7 +270,12 @@
         count:0,
         addHtml:false,
         updateHtml:false,
+        setValueHtml:false,
+        addValueHtml:false,
+        updateValueHtml:false,
         ccg:true,
+        typeName:"",
+        proName:"",
         rules: {
           name: [
             { required: true, message: '请输入属性名称', trigger: 'blur' },
@@ -213,10 +305,72 @@
         this.quertShopPropertyData();
       },
       handleEdit:function (index,row) {
-        debugger;
+
         this.updateHtml=true;
         this.updateForm=row;
       },
+      setValue:function(index,row){
+        this.proName=row.nameCH+"的值";
+        this.addproValue.proId=row.id;
+        this.updateproValue.proId=row.id;
+        this.setValueHtml=true;
+        this.quertProValueByProId(row.id);
+      },
+      addValuea:function(index,row){
+        this.addValueHtml=true;
+        this.addproValue={}
+        this.addproValue.proId=this.updateproValue.proId;
+      },
+      addproValueSubmit:function(addproValue){
+        this.$refs[addproValue].validate((valid) => {
+          if (valid) {
+            this.$ajax.post("http://localhost:8083/api/proValue/addProValue",this.$qs.stringify(this.addproValue)).then((res)=>{
+              console.log(res);
+              this.addValueHtml=false;
+              this.quertProValueByProId(this.addproValue.proId);
+            }).catch(err=>{console.log(err)})
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        });
+
+      },
+      updateValuea:function (index,row) {
+
+        this.updateValueHtml=true;
+        this.updateproValue=row;
+      },
+      delValuea:function(index,row){
+        this.$ajax.delete("http://localhost:8083/api/proValue/delProValue?id="+row.id).then((res)=>{
+          console.log(res);
+          this.quertProValueByProId(row.proId);
+        }).catch(err=>{console.log(err)})
+
+      },
+      updateValueSubmit:function(updateproValue){
+
+        this.$refs[updateproValue].validate((valid) => {
+          if (valid) {
+            this.$ajax.post("http://localhost:8083/api/proValue/updateProValue",this.$qs.stringify(this.updateproValue)).then((res)=>{
+              console.log(res);
+              this.updateValueHtml=false;
+            this.quertProValueByProId(this.updateproValue.proId);
+            }).catch(err=>{console.log(err)})
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        });
+      },
+      quertProValueByProId(proId){
+        this.$ajax.get("http://localhost:8083/api/proValue/selectProValueByproId?proId="+proId).then((res)=>{
+          this.proValue=res.data.data;
+
+        }).catch(err=>{console.log(err)})
+
+      },
+
       handleDel:function (index,row) {
         this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
           confirmButtonText: '确定',
@@ -251,19 +405,40 @@
         this.$ajax.get("http://localhost:8083/api/type/getData").then(function (res) {
           tthis.shopTyeps=res.data.data;
           var shopData=res.data.data;
-          debugger;
-          for (let i = 0; i <shopData.length ; i++) {
-            var rf=tthis.isPrent(shopData[i]);
-            var data ={};
-            if(rf==false){
-            data.id=shopData[i].id;
-            data.name=shopData[i].name;
-              tthis.shopTyep.push(data);
+          for (let i = 0; i < shopData.length; i++) {
+            const datum = shopData[i];
+            if(datum.pid==0){
+              tthis.typeName=datum.name;
             }
           }
+          for (let i = 0; i <shopData.length ; i++) {
 
+              var rf=tthis.isPrent(shopData[i]);
+              var data ={};
+              if(rf==false){
+                data.id=shopData[i].id;
+                data.name=shopData[i].name;
+                data.pid=shopData[i].pid;
+                tthis.shopTyep.push(data);
+            }
+          }
+          var ty=tthis.shopTyep;
+          var tys=tthis.shopTyeps;
+          for (let j = 0; j <ty.length ; j++) {
+            for (let c = 0; c <tys.length ; c++) {
+              var cc={};
+              if(tys[c].pid!=0){
+                if(tys[c].id==ty[j].pid){
+                  cc.id=ty[j].id;
+                  cc.name=tthis.typeName+"/"+tys[c].name+"/"+ty[j].name;
+                  tthis.shopTyepsss.push(cc);
+                }
+              }
+            }
+          }
         })
       },
+
       isPrent:function(data){
         for (let i = 0; i <this.shopTyeps.length ; i++) {
           if(data.id==this.shopTyeps[i].pid){
@@ -271,9 +446,10 @@
           }
         }
         return false;
-
       },
+
       addBrand:function () {
+        this.addForm={};
         this.addHtml=true;
       },
       addSubmit:function (addForm) {
@@ -333,9 +509,9 @@
         return c==0?"下拉框": c==1?"单选框": c==2?"复选框": c==3?"输入框":"";
       },
       formattertypeId:function (a,b,c,d) {
-        for (let i = 0; i <this.shopTyep.length ; i++) {
-          if(c==this.shopTyep[i].id){
-            return this.shopTyep[i].name;
+        for (let i = 0; i <this.shopTyepsss.length ; i++) {
+          if(c==this.shopTyepsss[i].id){
+            return this.shopTyepsss[i].name;
           }
         }
       }

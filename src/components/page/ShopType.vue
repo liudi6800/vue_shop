@@ -120,7 +120,6 @@
               break;
             }
           }
-
           this.data.push(JSON.parse(this.jsonStr));
         },
         diguiData:function(node){

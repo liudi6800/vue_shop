@@ -211,7 +211,7 @@
           this.quertShopBrandData();
         },
         handleEdit:function (index,row) {
-          debugger;
+
           this.updateHtml=true;
           this.imagPath="";
           this.updateForm=row;
@@ -229,7 +229,9 @@
           ).catch(err=>console.log(err))
         },
         addBrand:function () {
-          this.imagPath="";
+
+          this.addForm={};
+          this.addForm.ord="0";
           this.addHtml=true;
         },
         addSubmit:function (addForm) {
@@ -268,12 +270,12 @@
           });
         },
         uploadSucces:function (a) {
-          debugger;
+
          this.addForm.imgpath=a.data;
           this.imagPath=a.data;
         },
         updateuploadSucces:function (a) {
-          debugger;
+
           this.updateForm.imgpaths=a.data;
           this.imagPath=a.data;
         },
