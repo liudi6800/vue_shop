@@ -67,6 +67,13 @@ export default {
                     title: '商品相关',
                     subs: [
                       {
+                        index: 'shop',
+                        title: '商品列表'
+                      },{
+                        index: 'addShop',
+                        title: '新增商品'
+                      },
+                      {
                         index: 'shopType',
                         title: '商品类型'
                       },

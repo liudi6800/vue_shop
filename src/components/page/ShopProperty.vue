@@ -45,7 +45,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="操作"  width="320">
+      <el-table-column label="操作"   align="center"  width="320">
         <template slot-scope="scope">
           <el-button icon="el-icon-edit"  circle size="mini" type="danger"
                      @click="handleEdit(scope.$index, scope.row)">
@@ -101,10 +101,10 @@
         </el-form-item>
 
         <el-form-item label="属性的类型" prop="type">
-          <el-radio v-model="addForm.type" :label="0" border>下拉框</el-radio>
-          <el-radio v-model="addForm.type" :label="1" border>单选框</el-radio>
-          <el-radio v-model="addForm.type" :label="2" border>复选框</el-radio>
-          <el-radio v-model="addForm.type" :label="3" border>输入框</el-radio>
+          <el-radio v-model="addForm.types" :label="0" border>下拉框</el-radio>
+          <el-radio v-model="addForm.types" :label="1" border>单选框</el-radio>
+          <el-radio v-model="addForm.types" :label="2" border>复选框</el-radio>
+          <el-radio v-model="addForm.types" :label="3" border>输入框</el-radio>
         </el-form-item>
 
         <el-form-item label="是否为Sku" prop="isSku">
@@ -147,10 +147,10 @@
         </el-form-item>
 
         <el-form-item label="属性的类型" prop="type">
-          <el-radio v-model="updateForm.type" :label="0" border>下拉框</el-radio>
-          <el-radio v-model="updateForm.type" :label="1" border>单选框</el-radio>
-          <el-radio v-model="updateForm.type" :label="2" border>复选框</el-radio>
-          <el-radio v-model="updateForm.type" :label="3" border>输入框</el-radio>
+          <el-radio v-model="updateForm.types" :label="0" border>下拉框</el-radio>
+          <el-radio v-model="updateForm.types" :label="1" border>单选框</el-radio>
+          <el-radio v-model="updateForm.types" :label="2" border>复选框</el-radio>
+          <el-radio v-model="updateForm.types" :label="3" border>输入框</el-radio>
         </el-form-item>
 
         <el-form-item label="是否为Sku" prop="isSku">
@@ -275,7 +275,8 @@
           nameCH:"",
           typeId:"",
           isSKU:"",
-          type:""
+          type:"",
+          types:""
         },
         updateForm:{
           name:"",
@@ -283,7 +284,8 @@
           typeId:"",
           isSKU:"",
           type:"",
-          isDel:""
+          isDel:"",
+          types:""
         },
 
         eachFrom:{
@@ -508,6 +510,7 @@
       addSubmit:function (addForm) {
         this.$refs[addForm].validate((valid) => {
           if (valid) {
+            this.addForm.type=this.addForm.types;
             this.$ajax.post("http://localhost:8083/api/property/add",this.$qs.stringify(this.addForm)).then((res)=>{
                 console.log(res);
                 this.addHtml=false;
@@ -524,6 +527,7 @@
       updateSubmit:function(updateFrom){
         this.$refs[updateFrom].validate((valid) => {
           if (valid) {
+            this.updateForm.type=this.updateForm.types;
             this.updateForm.imgpath = this.updateForm.imgpaths;
             console.log(this.updateForm);
             this.$ajax.post("http://localhost:8083/api/property/update",this.$qs.stringify(this.updateForm)).then((res)=>{
