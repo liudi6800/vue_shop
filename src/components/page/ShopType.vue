@@ -101,14 +101,19 @@
           }
       },
       created:function () {
-
-      this.$ajax.get("http://localhost:8083/api/type/getData").then(res=>{
-        this.ajaxData=res.data.data;
-        this.queryParent();
-
-      }).catch((res)=>{console.log(res)})
+        this.quertType();
       },
       methods:{
+          quertType:function(){
+
+            this.$ajax.get("http://localhost:8083/api/type/getData").then(res=>{
+              this.ajaxData=res.data.data;
+              this.queryParent();
+
+            }).catch((res)=>{console.log(res)})
+          },
+
+
         handleNodeClick(data) {
 
         },

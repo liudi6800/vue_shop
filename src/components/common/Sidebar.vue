@@ -62,7 +62,7 @@ export default {
                     title: '系统首页'
                 },
                 {
-                    icon: 'el-icon-cpu',
+                    icon: 'el-icon-s-goods',
                     index: '3',
                     title: '商品相关',
                     subs: [
