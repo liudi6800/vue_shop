@@ -28,11 +28,24 @@
 
       <el-table-column prop="type"  align="center"  label="属性的类型"  width="110" :formatter="formatterIsType"> </el-table-column>
 
-      <el-table-column prop="isDel"  align="center"  label="是否展示"  width="80" :formatter="formatterIsdel">
+      <el-table-column    align="center"  label="是否展示"  width="180"  >
 
+        <template slot-scope="scope">
+          <el-switch
+            v-model="scope.row.isDel"
+            :active-value="0"
+            :inactive-value="1"
+            active-text="是"
+            inactive-text="否"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+            @change="change(scope.row)">
+          </el-switch>
+
+        </template>
       </el-table-column>
 
-      <el-table-column label="操作"  width="380">
+      <el-table-column label="操作"  width="320">
         <template slot-scope="scope">
           <el-button icon="el-icon-edit"  circle size="mini" type="danger"
                      @click="handleEdit(scope.$index, scope.row)">
@@ -160,7 +173,7 @@
 
     <!-------------------------------------设置属性值的所有模板---------------------------------------->
 
-    <el-dialog    :title="proName" :visible.sync="setValueHtml" width="1000px">
+    <el-dialog    :title="proName"   :visible.sync="setValueHtml" width="1000px">
       <el-button type="primary" @click="addValuea">新增{{proName}}</el-button>
       <el-table :data="proValue">
         <el-table-column   label="" width="150"></el-table-column>
@@ -555,22 +568,14 @@
           }
         }
       },
-      change:function (index,row) {
-    debugger;
-        if(row.isDel==true){
+      change:function (row) {
+            debugger;
           this.$ajax.delete("http://192.168.1.224:8083/api/property/delete",{
             params:{
-              id:row.id,isDel:0
+              id:row.id,isDel:row.isDel
             }
-          }).then(res=>console.log(res)).catch(err=>console.log(err));
-        }
-        if(row.isDel==false){
-          this.$ajax.delete("http://192.168.1.224:8083/api/property/delete",{
-            params:{
-              id:row.id,isDel:1
-            }
-          }).then(res=>console.log(res)).catch(err=>console.log(err));
-        }
+          }).then(res=> this.quertShopPropertyData()).catch(err=>console.log(err));
+
       }
 
     }
