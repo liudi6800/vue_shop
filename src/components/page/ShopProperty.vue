@@ -200,12 +200,12 @@
     <el-dialog title="新增属性值"  :visible.sync="addValueHtml"  >
       <el-form ref="addproValue" :rules="rules" :model="addproValue" label-width="180px"  >
 
-        <el-form-item label="属性名" prop="name">
-          <el-input v-model="addproValue.name"></el-input>
+        <el-form-item label="属性名" prop="nameCH">
+          <el-input v-model="addproValue.nameCH"></el-input>
         </el-form-item>
 
-        <el-form-item label="属性值值" prop="nameCH">
-          <el-input v-model="addproValue.nameCH"></el-input>
+        <el-form-item label="属性值值" prop="name">
+          <el-input v-model="addproValue.name"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="addproValueSubmit('addproValue')">立即新增</el-button>

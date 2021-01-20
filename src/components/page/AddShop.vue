@@ -54,7 +54,16 @@
 
           </el-form-item>
 
-
+          <el-form-item label="商品图片" prop="imgpaths">
+            <el-upload
+              class="avatar-uploader"
+              action="http://localhost:8083/api/brand/uploadImgPath"
+              :show-file-list="false"
+              :on-success="LoglocadSucces">
+              <img v-if="imagPath" :src="imagPath"  class="avatar" v-model="addForm.imgPath">
+              <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+            </el-upload>
+          </el-form-item>
           <el-form-item>
             <el-button type="primary" style="margin-top: 12px;" @click="next1('addForm')">下一步，填写商品属性</el-button>
           </el-form-item>
@@ -79,17 +88,13 @@
             </el-select>
           </el-form-item>
 
-          <el-form-item  v-if="skuData.length>0"  label="商品规格" >
+          <el-form-item  v-if="skuData.length>0"  label="商品规格">
                 <el-form-item  v-for="a in skuData" :key="a.id" :label="a.nameCH" >
 
 
-                  <el-checkbox-group v-if="a.type==2" v-model="a.isCheck"  @change="skuChang">
-                    <el-checkbox-button v-for="b in a.values"     :key="b.id" :label="b.nameCH"   :checked="b.checked" ></el-checkbox-button>
+                  <el-checkbox-group v-if="a.type==2" v-model="a.isCheck" >
+                    <el-checkbox-button v-for="b in a.values"     :key="b.id" :label="b.nameCH"  @change="skuChang(b.id)" ></el-checkbox-button>
                   </el-checkbox-group>
-
-
-
-
                 </el-form-item>
           </el-form-item>
 
@@ -105,31 +110,22 @@
             </el-table-column>
 
             <el-table-column
-              prop="price"
               label="价格"
               width="180">
               <template slot-scope="scope">
-                 <el-input  v-model="scope.row.price" />
+                 <el-input  v-model="scope.row.prices"  />
               </template>
             </el-table-column>
 
             <el-table-column
-              prop="count"
               label="库存"
               width="180">
               <template slot-scope="scope">
-              <el-input   v-model="scope.row.count"/>
+              <el-input   v-model="scope.row.storcks"  />
               </template>
             </el-table-column>
 
           </el-table>
-
-
-
-
-
-
-
 
 
 
@@ -162,7 +158,7 @@
 
 
           <el-button   style="margin-top: 12px;" @click="active--">上一步，填写商品信息</el-button>
-          <el-button type="primary" style="margin-top: 12px;" @click="active++">下一步，提交商品信息</el-button>
+          <el-button type="primary" style="margin-top: 12px;" @click="addFrom">提交，提交商品信息</el-button>
         </el-form>
 
       </div>
@@ -174,20 +170,9 @@
 
         <el-form ref="form" :model="addForm2" label-width="80px">
 
-        <el-form-item label="商品图片" prop="imgpaths">
-          <el-upload
-            class="avatar-uploader"
-            action="http://localhost:8083/api/brand/uploadImgPath"
-            :show-file-list="false"
-            :on-success="LoglocadSucces">
-            <img v-if="imagPath" :src="imagPath"  class="avatar" v-model="imgpaths">
-            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-          </el-upload>
-        </el-form-item>
-
 
         <el-button   style="margin-top: 12px;" @click="active--">上一步，填写商品属性</el-button>
-        <el-button type="primary" style="margin-top: 12px;" >提交，商品信息</el-button>
+        <el-button type="primary" style="margin-top: 12px;" >，商品信息</el-button>
 
         </el-form>
       </div>
@@ -215,6 +200,8 @@
           price:"",
           stocks:"",
           sortNum:"",
+          imgPath:"",
+          typeId:"",
         },
         addForm2:{
           se:[],
@@ -243,7 +230,11 @@
         imagPath:"",
         cols:[],//表动态列头
         tableData:[],
-        imgpaths:""
+        imgpaths:"",
+
+
+
+
       }
     },
     created:function () {
@@ -253,8 +244,8 @@
 
 
 
-      skuChang:function () {
-
+      skuChang:function (val) {
+        //alert(val);
         this.cols=[];
         this.tableData=[];
 
@@ -287,15 +278,17 @@
                 let key=this.cols[j].name;
                 tableValue[key]=valuesAttr[j];
               }
+
               this.tableData.push(tableValue);
             }else{
-              debugger;
+
               for (let k= 0; k < res.length; k++) {
                 var  atableValue={};
                 let key=this.cols[0].name;
                 atableValue[key]=res[k];
                 this.tableData.push(atableValue);
               }
+
 
             }
           }
@@ -317,24 +310,11 @@
     },
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
       queryBandData:function(){
         this.$ajax.get("http://localhost:8083/api/brand/getAllBandData").then(res=>this.shopBand=res.data.data).catch(err=>console.log(err));
       },
       getBandData:function(val){
+        this.addForm.typeId=val;
         this.skuData=[];
         this.proData=[];
         this.tableShow=false;
@@ -453,9 +433,15 @@
         return false;
       },  LoglocadSucces:function (a) {
 
-        this.addForm2.imgpath=a.data;
+        this.addForm.imgPath=a.data;
         this.imagPath=a.data;
       },
+      addFrom:function () {
+
+          console.log(JSON.stringify(this.tableData));
+
+      },
+
 
 
 
