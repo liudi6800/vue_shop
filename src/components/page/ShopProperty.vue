@@ -147,10 +147,10 @@
         </el-form-item>
 
         <el-form-item label="属性的类型" prop="type">
-          <el-radio v-model="updateForm.types" :label="0" border>下拉框</el-radio>
-          <el-radio v-model="updateForm.types" :label="1" border>单选框</el-radio>
-          <el-radio v-model="updateForm.types" :label="2" border>复选框</el-radio>
-          <el-radio v-model="updateForm.types" :label="3" border>输入框</el-radio>
+          <el-radio v-model="updateForm.type" :label="0" border>下拉框</el-radio>
+          <el-radio v-model="updateForm.type" :label="1" border>单选框</el-radio>
+          <el-radio v-model="updateForm.type" :label="2" border>复选框</el-radio>
+          <el-radio v-model="updateForm.type" :label="3" border>输入框</el-radio>
         </el-form-item>
 
         <el-form-item label="是否为Sku" prop="isSku">
@@ -200,14 +200,13 @@
     <el-dialog title="新增属性值"  :visible.sync="addValueHtml"  >
       <el-form ref="addproValue" :rules="rules" :model="addproValue" label-width="180px"  >
 
-        <el-form-item label="属性值名" prop="nameCH">
-          <el-input v-model="addproValue.nameCH"></el-input>
-        </el-form-item>
-
-        <el-form-item label="属性值" prop="name">
+        <el-form-item label="属性名" prop="name">
           <el-input v-model="addproValue.name"></el-input>
         </el-form-item>
 
+        <el-form-item label="属性值值" prop="nameCH">
+          <el-input v-model="addproValue.nameCH"></el-input>
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="addproValueSubmit('addproValue')">立即新增</el-button>
 
@@ -244,18 +243,6 @@
   export default {
     name: "ShopBrand",
     data(){
-      var han = /^[\u4e00-\u9fa5]+$/;
-      var checkName = (rule, value, callback) => {
-        if (!value) {
-          return callback(new Error('名称不能为空'));
-        }
-        if (!han.test(value)) {
-            callback(new Error('请输入中文'));
-          } else {
-              callback();
-            }
-      };
-
       return{
         data:[],
         shopTyeps:[],
@@ -285,7 +272,7 @@
           isSKU:"",
           type:"",
           isDel:"",
-          types:""
+
         },
 
         eachFrom:{
@@ -311,7 +298,7 @@
           ],
           nameCH: [
             { max: 15, message: '长度最多 15 个字符', trigger: 'blur' },
-            { validator:checkName , trigger: 'blur' }
+            { required: true, message: '请输入属性名称', trigger: 'blur' },
           ],
 
         }
@@ -334,6 +321,8 @@
 
         this.updateHtml=true;
         this.updateForm=row;
+
+
       },
       setValue:function(index,row){
         this.proName= row.nameCH+"的值";
@@ -368,6 +357,7 @@
 
         this.updateValueHtml=true;
         this.updateproValue=row;
+
       },
       delValuea:function(index,row){
 
@@ -527,8 +517,9 @@
       updateSubmit:function(updateFrom){
         this.$refs[updateFrom].validate((valid) => {
           if (valid) {
-            this.updateForm.type=this.updateForm.types;
+
             this.updateForm.imgpath = this.updateForm.imgpaths;
+
             console.log(this.updateForm);
             this.$ajax.post("http://localhost:8083/api/property/update",this.$qs.stringify(this.updateForm)).then((res)=>{
               this.$message.success("修改成功");
