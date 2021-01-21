@@ -4,12 +4,12 @@
 
       <el-steps :active="active" finish-status="success">
         <el-step title="填写商品信息"></el-step>
-        <el-step title="填写属性信息"></el-step>
+        <el-step title="填写商品属性"></el-step>
         <el-step title="提交订单"></el-step>
       </el-steps>
 
 
-      <div v-if="active==1"  >
+      <div v-if="active==0"  >
         <el-form ref="addForm" :rules="addForms" :model="addForm" label-width="80px">
           <el-form-item label="商品品牌" prop="bandId">
             <el-select v-model="addForm.bandId" placeholder="请选择" >
@@ -73,7 +73,7 @@
 
 
 
-      <div v-if="active==2">
+      <div v-if="active==1">
         <el-form ref="form" :model="addForm2" label-width="80px">
 
 
@@ -93,7 +93,7 @@
 
 
                   <el-checkbox-group v-if="a.type==2" v-model="a.isCheck" >
-                    <el-checkbox-button v-for="b in a.values"     :key="b.id" :label="b.nameCH"  @change="skuChang(b.id)" ></el-checkbox-button>
+                    <el-checkbox-button v-for="b in a.values"     :key="b.id" :label="b.nameCH"  @change="skuChang()" ></el-checkbox-button>
                   </el-checkbox-group>
                 </el-form-item>
           </el-form-item>
@@ -132,7 +132,7 @@
           <el-form-item  v-if="proData.length>0"  label="商品参数" >
             <el-form-item  v-for="a in proData" :key="a.id" :label="a.nameCH" >
 
-              <el-select v-if="a.type==0"    v-model="addForm2.se[a.id]" placeholder="请选择">
+              <el-select v-if="a.type==0"   v-model="a.isCheck" placeholder="请选择">
                   <el-option
                     v-for="b in a.values"
                     :key="b.id"
@@ -141,16 +141,16 @@
                   </el-option>
               </el-select>
 
-              <el-radio-group v-if="a.type==1" v-model="addForm2.ra">
-                <el-radio v-for="b in a.values"  :label="b.id"  ></el-radio>
+              <el-radio-group v-if="a.type==1" v-model="a.isCheck">
+                <el-radio v-for="b in a.values" :key="b.id"  :label="b.nameCH"  ></el-radio>
               </el-radio-group>
 
-              <el-checkbox-group v-if="a.type==2" v-model="addForm2.ch">
+              <el-checkbox-group v-if="a.type==2"  v-model="a.isCheck">
                 <el-checkbox-button v-for="b in a.values"    :key="b.id" :label="b.nameCH"></el-checkbox-button>
               </el-checkbox-group>
 
 
-              <el-input v-if="a.type==3" ></el-input>
+              <el-input v-if="a.type==3" v-model="a.isCheck"></el-input>
 
             </el-form-item>
           </el-form-item>
@@ -163,19 +163,6 @@
 
       </div>
 
-
-
-
-      <div v-if="active==3">
-
-        <el-form ref="form" :model="addForm2" label-width="80px">
-
-
-        <el-button   style="margin-top: 12px;" @click="active--">上一步，填写商品属性</el-button>
-        <el-button type="primary" style="margin-top: 12px;" >，商品信息</el-button>
-
-        </el-form>
-      </div>
 
 
     </div>
@@ -191,7 +178,7 @@
     data(){
       return{
         twodDscartes:[],
-        active: 1,
+        active: 0,
         addForm:{
           name:"",
           title:"",
@@ -202,6 +189,8 @@
           sortNum:"",
           imgPath:"",
           typeId:"",
+          skus:[],
+          nosku:[]
         },
         addForm2:{
           se:[],
@@ -231,6 +220,7 @@
         cols:[],//表动态列头
         tableData:[],
         imgpaths:"",
+
 
 
 
@@ -270,27 +260,19 @@
 
             //得到数据
             let valuesAttr=res[i];
-
-            let tf=Array.isArray(valuesAttr);
-            if(tf==true){
               let  tableValue={};
-              for (let j = 0; j < valuesAttr.length; j++) {
-                let key=this.cols[j].name;
-                tableValue[key]=valuesAttr[j];
-              }
 
-              this.tableData.push(tableValue);
-            }else{
-
-              for (let k= 0; k < res.length; k++) {
-                var  atableValue={};
+              if(typeof valuesAttr=="object"){
+                for (let j = 0; j < valuesAttr.length; j++) {
+                  let key=this.cols[j].name;
+                  tableValue[key]=valuesAttr[j];
+                }
+              }else{
                 let key=this.cols[0].name;
-                atableValue[key]=res[k];
-                this.tableData.push(atableValue);
+                tableValue[key]=valuesAttr;
               }
+              this.tableData.push(tableValue);
 
-
-            }
           }
         }
         this.tableShow=flag;
@@ -318,6 +300,7 @@
         this.skuData=[];
         this.proData=[];
         this.tableShow=false;
+
         this.$ajax.get("http://localhost:8083/api/property/selectShopProByTypeId?typeId="+val).then(res=>{
           let shopProperData=res.data.data;
            if(shopProperData.length>0){
@@ -334,9 +317,9 @@
                    this.skuData.push(shopProperData[i]);
                  }
 
-
                } else {
                  if (shopProperData[i].type != 3) {
+                   shopProperData[i].isCheck=[];
                    this.$ajax.get("http://192.168.1.224:8083/api/proValue/selectProValueByproId?proId="+shopProperData[i].id).then(res=>{
 
                      shopProperData[i].values=res.data.data;
@@ -348,13 +331,10 @@
 
                }
              }
-             console.log(this.skuData);
+
            }
         }).catch(err=>console.log(err));
-
       },
-
-
       next1:function (addForm)  {
         this.$refs[addForm].validate((valid) => {
           if (valid) {
@@ -362,20 +342,14 @@
            if(this.shopTyep.length<=0){
              this.queryShopType();
            }
-
           } else {
             console.log('error submit!!');
             return false;
           }
         });
-
       },
-
-
-
       /*处理分类数据*/
       queryShopType:function(){
-
         this.$ajax.get("http://localhost:8083/api/type/getData").then(res=> {
           this.shopTyeps=res.data.data;
           var shopData=res.data.data;
@@ -395,18 +369,14 @@
               this.shopTyep.push(data);
             }
           }
-
           //遍历所有的子节点
           for (let i = 0; i <this.shopTyep.length ; i++) {
             this.typeName="";
-
             //处理子节点的name属性
             this.chandleName(this.shopTyep[i]);
-
             var a= this.typeName.split("/").reverse().join("/");
             this.shopTyep[i].name=a.substring(0,a.length-1);
           }
-
         })
       },
       //给我一个节点  得到层级name
@@ -432,18 +402,37 @@
         }
         return false;
       },  LoglocadSucces:function (a) {
-
         this.addForm.imgPath=a.data;
         this.imagPath=a.data;
       },
       addFrom:function () {
+        if(this.tableShow==true){
+          let  atrrs=[];
+          debugger;
+          for (let i = 0; i <this.proData.length ; i++) {
+              let  attData={};
+              attData[this.proData[i].name]=this.proData[i].isCheck;
+              atrrs.push(attData);
 
-          console.log(JSON.stringify(this.tableData));
+          }
+          this.addForm.proData=JSON.stringify(atrrs);
+          this.addForm.skuData=JSON.stringify(this.tableData);
+          this.$ajax.post("http://localhost:8083/api/shop/addShop",this.$qs.stringify(this.addForm)).then(res=>{
+            location.reload();
+            this.$message.success("新增成功");
+          })
+        }else{
+            this.$message.error("数据不能为空")
+        }
+
+
+
+
+
+
+
 
       },
-
-
-
 
     }
   }
