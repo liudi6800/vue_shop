@@ -320,9 +320,7 @@
       handleEdit:function (index,row) {
 
         this.updateHtml=true;
-        this.updateForm=row;
-
-
+        this.updateForm=JSON.parse(JSON.stringify(row));
       },
       setValue:function(index,row){
         this.proName= row.nameCH+"的值";
@@ -356,11 +354,10 @@
       updateValuea:function (index,row) {
 
         this.updateValueHtml=true;
-        this.updateproValue=row;
+        this.updateproValue=JSON.parse(JSON.stringify(row));
 
       },
       delValuea:function(index,row){
-
 
         this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
           confirmButtonText: '确定',

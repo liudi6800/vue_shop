@@ -214,9 +214,9 @@
 
           this.updateHtml=true;
           this.imagPath="";
-          this.updateForm=row;
-          this.imagPath=row.imgpath;
-          this.updateForm.imgpaths=row.imgpath;
+          this.updateForm=JSON.parse(JSON.stringify(row));
+          this.imagPath=JSON.parse(JSON.stringify(row)).imgpath;
+          this.updateForm.imgpaths=JSON.parse(JSON.stringify(row)).imgpath;
 
         },
         quertShopBrandData:function () {

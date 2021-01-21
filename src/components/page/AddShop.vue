@@ -155,8 +155,6 @@
             </el-form-item>
           </el-form-item>
 
-
-
           <el-button   style="margin-top: 12px;" @click="active--">上一步，填写商品信息</el-button>
           <el-button type="primary" style="margin-top: 12px;" @click="addFrom">提交，提交商品信息</el-button>
         </el-form>
@@ -401,7 +399,8 @@
           }
         }
         return false;
-      },  LoglocadSucces:function (a) {
+      },
+      LoglocadSucces:function (a) {
         this.addForm.imgPath=a.data;
         this.imagPath=a.data;
       },
