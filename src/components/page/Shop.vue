@@ -535,6 +535,7 @@
           //声明笛卡尔积的参数
           let dikaParams=[];
           let flag=true;
+          debugger;
           for (let i = 0; i <this.skuData.length ; i++) {
 
             this.cols.push({"id":this.skuData[i].id,"nameCH":this.skuData[i].nameCH,"name":this.skuData[i].name});

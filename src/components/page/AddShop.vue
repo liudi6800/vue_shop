@@ -142,7 +142,7 @@
               </el-select>
 
               <el-radio-group v-if="a.type==1" v-model="a.isCheck">
-                <el-radio v-for="b in a.values" :key="b.id"  :label="b.nameCH"  ></el-radio>
+                <el-radio v-for="b in a.values" :key="b.id"  :label="b.nameCH"></el-radio>
               </el-radio-group>
 
               <el-checkbox-group v-if="a.type==2"  v-model="a.isCheck">
@@ -230,6 +230,8 @@
     },
     methods:{
 
+
+
       skuChang:function (val) {
         //alert(val);
         this.cols=[];
@@ -297,40 +299,12 @@
         this.proData=[];
         this.tableShow=false;
 
-        this.$ajax.get("http://localhost:8083/api/property/selectShopProByTypeId?typeId="+val).then(res=>{
-          let shopProperData=res.data.data;
-           if(shopProperData.length>0){
-             for (let i = 0; i <shopProperData.length ; i++) {
-               if (shopProperData[i].isSKU == 0) {
-                 if (shopProperData[i].type != 3) {
-                  this.$ajax.get("http://192.168.1.224:8083/api/proValue/selectProValueByproId?proId="+shopProperData[i].id).then(res=>{
-                    shopProperData[i].values=res.data.data;
-                    shopProperData[i].isCheck=[];
-                    this.skuData.push(shopProperData[i]);
-                  })
-                 }else{
-                   shopProperData[i].isCheck=[];
-                   this.skuData.push(shopProperData[i]);
-                 }
+        this.$ajax.get("http://192.168.1.224:8083/api/property/selectShopProDataByTypeId?typeId="+val).then(res=> {
+          this.skuData = res.data.data.skuDatas;
+          this.proData = res.data.data.noSkuData;
 
-               } else {
-                 if (shopProperData[i].type != 3) {
-                   shopProperData[i].isCheck=[];
-                   this.$ajax.get("http://192.168.1.224:8083/api/proValue/selectProValueByproId?proId="+shopProperData[i].id).then(res=>{
-
-                     shopProperData[i].values=res.data.data;
-                     this.proData.push(shopProperData[i]);
-                   })
-                 }else{
-                   this.proData.push(shopProperData[i]);
-                 }
-
-               }
-             }
-
-           }
-        }).catch(err=>console.log(err));
-      },
+        })
+          },
       next1:function (addForm)  {
         this.$refs[addForm].validate((valid) => {
           if (valid) {
