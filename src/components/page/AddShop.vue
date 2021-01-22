@@ -230,8 +230,6 @@
     },
     methods:{
 
-
-
       skuChang:function (val) {
         //alert(val);
         this.cols=[];
