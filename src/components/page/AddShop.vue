@@ -294,11 +294,12 @@
         this.$ajax.get("http://localhost:8083/api/brand/getAllBandData").then(res=>this.shopBand=res.data.data).catch(err=>console.log(err));
       },
       getBandData:function(val){
+        debugger;
         this.addForm.typeId=val;
         this.skuData=[];
         this.proData=[];
         this.tableShow=false;
-        this.$ajax.get("http://192.168.1.224:8083/api/property/selectShopProDataByTypeId?typeId="+val).then(res=> {
+        this.$ajax.get("http://localhost:8083/api/property/selectShopProDataByTypeId?typeId="+val).then(res=> {
           this.skuData = res.data.data.skuDatas;
           this.proData = res.data.data.noSkuData;
           for (let i = 0; i <this.skuData.length ; i++) {

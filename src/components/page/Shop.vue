@@ -198,7 +198,7 @@
 
 
         <el-form-item label="商品类型" prop="typeId"    >
-          <el-select v-model="addForm2.typeId" placeholder="请选择" style="width: 300px" @change="getBandData">
+          <el-select v-model="addForm2.typeId" placeholder="请选择" style="width: 300px"  >
             <el-option
               v-for="item in shopType"
               :key="item.id"
@@ -230,6 +230,7 @@
           </el-table-column>
 
           <el-table-column
+
             label="价格"
             width="180">
             <template slot-scope="scope">
@@ -238,6 +239,7 @@
           </el-table-column>
 
           <el-table-column
+
             label="库存"
             width="180">
             <template slot-scope="scope">
@@ -262,7 +264,7 @@
             </el-select>
 
             <el-radio-group v-if="a.type==1" v-model="a.isCheck">
-              <el-radio v-for="b in a.values" :key="b.id"  :label="b.nameCH"  ></el-radio>
+              <el-radio v-for="b in a.values" :key="b.id"  :label="b.id"  >{{b.nameCH}}</el-radio>
             </el-radio-group>
 
             <el-checkbox-group v-if="a.type==2"  v-model="a.isCheck">
@@ -275,7 +277,7 @@
           </el-form-item>
         </el-form-item>
 
-        <el-button type="primary" style="margin-top: 12px;"  >提交，提交商品信息</el-button>
+        <el-button type="primary" style="margin-top: 12px;" @click="updateSkuFrom" >提交，提交商品信息</el-button>
       </el-form>
 
     </el-dialog>
@@ -355,11 +357,11 @@
           }).catch(err=>{console.log(err)});
         },
         queryBand:function () {
-          this.$ajax.get("http://192.168.1.224:8083/api/brand/getAllBandData").then(res=>{
+          this.$ajax.get("http://localhost:8083/api/brand/getAllBandData").then(res=>{
             this.shopBand=res.data.data;
           }).catch(err=>{console.log(err)});
         },queryType:function () {
-          this.$ajax.get("http://192.168.1.224:8083/api/type/getData").then(res=>{
+          this.$ajax.get("http://localhost:8083/api/type/getData").then(res=>{
             this.shopType=res.data.data;
           }).catch(err=>{console.log(err)});
         },
@@ -416,52 +418,61 @@
           }).then(res=> this.quertShopPropertyData()).catch(err=>console.log(err));
 
         },
-        skuEdit:function (index,row) {
+        skuEdit:async function (index,row) {
         this.skuHtml=true;
         this.addForm2.typeId=JSON.parse(JSON.stringify(row.typeId));
-        this.getBandData(row.typeId,row.id);
-         this.tableShow=true;
-         this.skuChang();
+        await this.getBandData2();
+
+          await this.getBandData(row.id);
+
+           this.showTable();
+
         },
 
-        getBandData:function(typeId,id){
+        getBandData:async function(id){
 
-          this.skuData=[];
-          this.proData=[];
+
           this.tableShow=false;
-          this.$ajax.get("http://192.168.1.224:8083/api/property/selectShopProDataByTypeId?typeId="+typeId).then(res=> {
-            this.skuData = res.data.data.skuDatas;
-            this.proData = res.data.data.noSkuData;
-
-          })
-        },
-
-        getValeu:function(key,data){
-
-          let arr=[];
-          for (let i = 0; i <data.length ; i++) {
-            //得到一个数据 将字符串转为json
-            let  objData=JSON.parse(data[i].attrData);
-            if(objData[key]!=null){
-              if(data[i].storcks!=null){
-                if(arr.indexOf(arr[key])==-1){
-                  debugger;
-
-                  arr.push(objData[key])
-                }
-              }else{
-                return objData[key]
-              }
-            }
+          let datas=await this.$ajax.get("http://localhost:8083/api/property/selectShopProByproId?proId="+id);
+          //处理sku
+          debugger;
+          let data=datas.data.data.skudata;
+          //遍历所有的sku属性
+          for (let i = 0; i <this.skuData.length ; i++) {
+            //得到一个sku属性
+            this.skuData[i].isCheck=data[this.skuData[i].name];
           }
 
+          //处理attr
+          let data2=datas.data.data.attrdata;
+          //遍历所有的sku属性
+          for (let i = 0; i <this.proData.length ; i++) {
+            //得到一个sku属性
+            this.proData[i].isCheck=data2[this.proData[i].name];
+          }
 
-          return arr;
+          //table赋值
+          this.tableData=datas.data.data.tableData;
+
+
+
         },
 
+        showTable:function(){
 
 
 
+          //判断是否需要回显table
+          if(this.skuData.length>0){
+            this.tableShow=true;
+            //设置动态表头 //动态表头[ {id:skudata.id,name:skudata.name,nameCH:skudata.nameCH}]
+            for (let i = 0; i <this.skuData.length ; i++) {
+              this.cols.push({"id":this.skuData[i].id,"nameCH":this.skuData[i].nameCH,"name":this.skuData[i].name});
+            }
+
+          }
+
+        },
         skuChang:function () {
 
           this.cols=[];
@@ -499,6 +510,9 @@
                 let key=this.cols[0].name;
                 tableValue[key]=valuesAttr;
               }
+              /* 格式写出来  sku的属性   [{cols.name:笛卡尔积的值,pricess：,storcks}]      */
+
+
               this.tableData.push(tableValue);
 
             }
@@ -519,16 +533,58 @@
           });
         },
 
+        getBandData2:async function(){
+
+         let res=await this.$ajax.get("http://localhost:8083/api/property/selectShopProDataByTypeId?typeId="+this.addForm2.typeId)
+            this.skuData = res.data.data.skuDatas;
+            this.proData = res.data.data.noSkuData;
+            for (let i = 0; i <this.skuData.length ; i++) {
+              this.skuData[i].isCheck=[];
+            }
+
+            for (let i = 0; i <this.proData.length ; i++) {
+              this.proData[i].isCheck=[];
+            }
+
+        },
+
+
+        updateSkuFrom:function () {
+          this.$message.error("不会写修改")
+
+         /* if(this.tableShow==true){
+            let  atrrs=[];
+            debugger;
+            for (let i = 0; i <this.proData.length ; i++) {
+              let  attData={};
+              attData[this.proData[i].name]=this.proData[i].isCheck;
+              atrrs.push(attData);
+
+            }
+            this.addForm.proData=JSON.stringify(atrrs);
+            this.addForm.skuData=JSON.stringify(this.tableData);
+            this.$ajax.post("http://localhost:8083/api/shopTypeData/updateSkuFrom",this.$qs.stringify(this.addForm)).then(res=>{
+              location.reload();
+              this.$message.success("新增成功");
+            })
+          }else{
+            this.$message.error("数据不能为空")
+          }
 
 
 
 
 
+*/
+
+
+        },
 
 
 
 
-      }
+
+   }
 
 
 
