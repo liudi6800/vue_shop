@@ -198,7 +198,7 @@
 
 
         <el-form-item label="商品类型" prop="typeId"    >
-          <el-select v-model="addForm2.typeId" placeholder="请选择" style="width: 300px" @change="getBandData2">
+          <el-select v-model="addForm2.typeId" placeholder="请选择" style="width: 300px" @change="getBandData">
             <el-option
               v-for="item in shopType"
               :key="item.id"
@@ -323,7 +323,7 @@
               imgPath:""
             },
             addForm2:{
-              typeId:""
+
             },
             shopData:[],
             shopBand:[],
@@ -338,8 +338,8 @@
             proData:[],
             tableData:[],
             TypeDataData:[],
-            typeId:""
-
+            typeId:"",
+            cols:[],//表动态列头
           }
       },
       created:function () {
@@ -420,88 +420,20 @@
         this.skuHtml=true;
         this.addForm2.typeId=JSON.parse(JSON.stringify(row.typeId));
         this.getBandData(row.typeId,row.id);
-        this.skuChang();
-
+         this.tableShow=true;
+         this.skuChang();
         },
-        noSkuEdit:function (index,row) {
-          this.noSkuHtml=true;
-          this.getBandData(row.typeId);
-
-        },
-
-
 
         getBandData:function(typeId,id){
 
-          this.$ajax.get("http://localhost:8083/api/shoptypedata/selectTypeDataByShopId?shopId="+id).then(res=>{
-            let datas=res.data.data;
+          this.skuData=[];
+          this.proData=[];
+          this.tableShow=false;
+          this.$ajax.get("http://192.168.1.224:8083/api/property/selectShopProDataByTypeId?typeId="+typeId).then(res=> {
+            this.skuData = res.data.data.skuDatas;
+            this.proData = res.data.data.noSkuData;
 
-            this.skuData=[];
-            this.proData=[];
-            this.tableShow=false;
-            this.$ajax.get("http://localhost:8083/api/property/selectShopProByTypeId?typeId="+typeId).then(res=>{
-              let shopProperData=res.data.data;
-              if(shopProperData.length>0){
-                let a=[];
-                for (let i = 0; i <shopProperData.length ; i++) {
-                  if (shopProperData[i].isSKU == 0) {
-                    if (shopProperData[i].type != 3) {
-
-                      if(shopProperData[i].type==2){
-
-                        if(this.getValeu(shopProperData[i].name,datas)==""){
-                          shopProperData[i].isCheck=[];
-                        }else{
-                          shopProperData[i].isCheck=this.getValeu(shopProperData[i].name,datas);
-
-                        }
-                      }else{
-                        shopProperData[i].isCheck=this.getValeu(shopProperData[i].name,datas);
-                      }
-
-                      this.$ajax.get("http://192.168.1.224:8083/api/proValue/selectProValueByproId?proId="+shopProperData[i].id).then(res=>{
-                        shopProperData[i].values=res.data.data;
-
-                        this.skuData.push(shopProperData[i]);
-
-                      })
-                    }else{
-                      shopProperData[i].isCheck=this.getValeu(shopProperData[i].name,datas);
-                      this.skuData.push(shopProperData[i]);
-                    }
-                  } else {
-
-                    if (shopProperData[i].type != 3) {
-                      if(shopProperData[i].type==2){
-                        if(this.getValeu(shopProperData[i].name,datas)==""){
-                          shopProperData[i].isCheck=[];
-                        }else{
-                          shopProperData[i].isCheck=this.getValeu(shopProperData[i].name,datas);
-                        }
-                      }else{
-                        shopProperData[i].isCheck=this.getValeu(shopProperData[i].name,datas);
-                      }
-
-                      this.$ajax.get("http://192.168.1.224:8083/api/proValue/selectProValueByproId?proId="+shopProperData[i].id).then(res=>{
-                        shopProperData[i].isCheck=this.getValeu(shopProperData[i].name,datas);
-                        shopProperData[i].values=res.data.data;
-                        this.proData.push(shopProperData[i]);
-                      })
-                    }else{
-                      shopProperData[i].isCheck=this.getValeu(shopProperData[i].name,datas);
-                      this.proData.push(shopProperData[i]);
-                    }
-
-                  }
-                }
-
-              }
-            }).catch(err=>console.log(err));
-
-
-          }).catch(err=>console.log(err));
-
-
+          })
         },
 
         getValeu:function(key,data){
@@ -513,6 +445,7 @@
             if(objData[key]!=null){
               if(data[i].storcks!=null){
                 if(arr.indexOf(arr[key])==-1){
+                  debugger;
 
                   arr.push(objData[key])
                 }
@@ -521,6 +454,8 @@
               }
             }
           }
+
+
           return arr;
         },
 
@@ -535,7 +470,6 @@
           //声明笛卡尔积的参数
           let dikaParams=[];
           let flag=true;
-          debugger;
           for (let i = 0; i <this.skuData.length ; i++) {
 
             this.cols.push({"id":this.skuData[i].id,"nameCH":this.skuData[i].nameCH,"name":this.skuData[i].name});
@@ -589,46 +523,7 @@
 
 
 
-        getBandData2:function(val){
 
-          this.skuData=[];
-          this.proData=[];
-          this.tableShow=false;
-
-          this.$ajax.get("http://localhost:8083/api/property/selectShopProByTypeId?typeId="+val).then(res=>{
-            let shopProperData=res.data.data;
-            if(shopProperData.length>0){
-              for (let i = 0; i <shopProperData.length ; i++) {
-                if (shopProperData[i].isSKU == 0) {
-                  if (shopProperData[i].type != 3) {
-                    this.$ajax.get("http://192.168.1.224:8083/api/proValue/selectProValueByproId?proId="+shopProperData[i].id).then(res=>{
-                      shopProperData[i].values=res.data.data;
-                      shopProperData[i].isCheck=[];
-                      this.skuData.push(shopProperData[i]);
-                    })
-                  }else{
-                    shopProperData[i].isCheck=[];
-                    this.skuData.push(shopProperData[i]);
-                  }
-
-                } else {
-                  if (shopProperData[i].type != 3) {
-                    shopProperData[i].isCheck=[];
-                    this.$ajax.get("http://192.168.1.224:8083/api/proValue/selectProValueByproId?proId="+shopProperData[i].id).then(res=>{
-
-                      shopProperData[i].values=res.data.data;
-                      this.proData.push(shopProperData[i]);
-                    })
-                  }else{
-                    this.proData.push(shopProperData[i]);
-                  }
-
-                }
-              }
-
-            }
-          }).catch(err=>console.log(err));
-        },
 
 
 

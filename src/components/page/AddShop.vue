@@ -142,7 +142,7 @@
               </el-select>
 
               <el-radio-group v-if="a.type==1" v-model="a.isCheck">
-                <el-radio v-for="b in a.values" :key="b.id"  :label="b.nameCH"></el-radio>
+                <el-radio v-for="b in a.values" :key="b.id"  :label="b.id">{{b.nameCH}}</el-radio>
               </el-radio-group>
 
               <el-checkbox-group v-if="a.type==2"  v-model="a.isCheck">
@@ -298,11 +298,16 @@
         this.skuData=[];
         this.proData=[];
         this.tableShow=false;
-
         this.$ajax.get("http://192.168.1.224:8083/api/property/selectShopProDataByTypeId?typeId="+val).then(res=> {
           this.skuData = res.data.data.skuDatas;
           this.proData = res.data.data.noSkuData;
+          for (let i = 0; i <this.skuData.length ; i++) {
+            this.skuData[i].isCheck=[];
+          }
 
+          for (let i = 0; i <this.proData.length ; i++) {
+            this.proData[i].isCheck=[];
+          }
         })
           },
       next1:function (addForm)  {
