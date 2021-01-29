@@ -8,7 +8,7 @@ export default new Router({
   routes: [
     {
       path: '/',
-      redirect: '/hello'
+      redirect: '/login'
     },
     {
       path: '/',
@@ -47,7 +47,16 @@ export default new Router({
           meta: { title: '商品属性' }
         },
       ]
-    }
+    },
+    {
+      path: '/login',
+      component: () => import(/* webpackChunkName: "login" */ '../components/page/Login.vue'),
+      meta: { title: '登录' }
+    }, {
+      path: '/addUser',
+      component: () => import(/* webpackChunkName: "login" */ '../components/page/AddUser.vue'),
+      meta: { title: '注册' }
+    },
 
   ]
 });
