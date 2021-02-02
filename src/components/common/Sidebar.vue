@@ -87,7 +87,27 @@ export default {
                       }
 
                     ]
-                }
+                },
+              {
+                icon: 'el-icon-user-solid',
+                index: '4',
+                title: '用户管理',
+                subs: [
+                  {
+                    index: 'user',
+                    title: '用户列表'
+                  },
+                  {
+                    index: 'userMenu',
+                    title: '用户权限'
+                  },
+                  {
+                    index: 'userRole',
+                    title: '用户角色'
+                  },
+
+                ]
+              }
             ]
         };
     },

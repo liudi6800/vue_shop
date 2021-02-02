@@ -45,6 +45,18 @@ export default new Router({
           path: '/shopProperty',
           component: () => import(/* webpackChunkName: "dashboard" */ '../components/page/ShopProperty.vue'),
           meta: { title: '商品属性' }
+        },{
+          path: '/user',
+          component: () => import(/* webpackChunkName: "dashboard" */ '../components/page/User.vue'),
+          meta: { title: '用户列表' }
+        },{
+          path: '/userMenu',
+          component: () => import(/* webpackChunkName: "dashboard" */ '../components/page/UserMenu.vue'),
+          meta: { title: '用户权限' }
+        },{
+          path: '/userRole',
+          component: () => import(/* webpackChunkName: "dashboard" */ '../components/page/UserRole.vue'),
+          meta: { title: '用户角色' }
         },
       ]
     },

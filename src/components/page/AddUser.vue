@@ -1,5 +1,5 @@
 <template>
-    <div class="content" >
+    <div class="content " >
       <el-form :model="addForm" :rules="rules" ref="addForm" label-width="100px" class="demo-ruleForm">
         <el-form-item label="用户账号" prop="name"  >
           <el-input v-model="addForm.name"></el-input>
