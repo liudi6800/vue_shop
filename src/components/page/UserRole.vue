@@ -30,6 +30,8 @@
           <template slot-scope="scope">
             <el-button icon="el-icon-edit"  circle size="mini" type="danger"
                        @click="handleEdit(scope.row)">修改</el-button>
+            <el-button icon="el-icon-edit"  circle size="mini" type="danger"
+                       @click="addRoleMenu(scope.row)">赋权限</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -63,6 +65,35 @@
           </el-form-item>
         </el-form>
       </el-dialog>
+
+
+
+
+
+       <!--   角色赋权限模板-->
+      <el-dialog title="角色赋权限"  :visible.sync="addRoleMenuHtml"  >
+        <el-form ref="fuquanForm" :rules="rules" :model="fuquanForm" label-width="180px"  >
+
+        <el-tree
+          :data="data"
+          :props="defaultProps"
+          accordion
+          node-key="id"
+          show-checkbox
+          ref="trees"
+          check-strictly
+          @check="clickTree"
+          :default-expanded-keys="[1]"
+          :default-checked-keys="defCheck"
+          :expand-on-click-node="false">
+        </el-tree>
+          <el-form-item>
+            <el-button type="primary" @click="fuquanFormSubmit">赋权限</el-button>
+          </el-form-item>
+
+        </el-form>
+      </el-dialog>
+
     </div>
 </template>
 
@@ -89,10 +120,24 @@
               name:"",
             },
 
+
+
+            addRoleMenuHtml:false,
+            data: [],
+            menuData: [],
+            menuDataStr: '',
+            defaultProps: {},
+            fuquanForm:{
+              rid:"",
+              menus:""
+            },
+            defCheck:[]
+
           }
       },
       created:function () {
           this.queryRoleData();
+        this.queryMenuData();
       },
       methods:{
          queryRoleData(){
@@ -142,10 +187,81 @@
               return false;
             }
           });
+        },
+        addRoleMenu:function (row) {
+          this.addRoleMenuHtml=true;
+          this.fuquanForm.rid=row.id;
+          this.defCheck=[];
+          this.$ajax.get("http://localhost:8083/api/menu/selectRoleMenuDataByRid?rid="+row.id).then(res => {
+             let datalist = res.data.data;
+             let arr=[];
+            for (let i = 0; i <datalist.length ; i++) {
+              arr.push(datalist[i].mid);
+            }
+            this.defCheck=arr;
+          }).catch(re => {
+            console.log(re);
+          })
+
+
+        },
+        //查询所有的权限数据
+        queryMenuData: function () {
+          this.$ajax.get("http://localhost:8083/api/menu/selectMenuData").then(res => {
+            this.menuData = res.data.data;
+            this.queryTop();
+          }).catch(re => {
+            console.log(re);
+          })
+        },
+        //查询顶层的权限数据
+        queryTop: function () {
+          for (let i = 0; i < this.menuData.length; i++) {
+            if (this.menuData[i].pid == 0) {
+              this.queryMenuDataStr(this.menuData[i]);
+              break;
+            }
+          }
+          this.data.push(JSON.parse(this.menuDataStr));
+        },
+        //拼接树结构数据
+        queryMenuDataStr: function (data) {
+          if (data.type == 0) {
+            this.menuDataStr += '{"id":' + data.id + ',"label":"' + data.name + '","children":[';
+            let count = 0;
+            for (let i = 0; i < this.menuData.length; i++) {
+              if (this.menuData[i].pid == data.id) {
+                count++;
+                this.queryMenuDataStr(this.menuData[i]);
+                this.menuDataStr += ",";
+              }
+            }
+            if (count != 0) {
+              this.menuDataStr = this.menuDataStr.substr(0, this.menuDataStr.length - 1);
+            }
+            this.menuDataStr += ']}';
+          } else {
+            this.menuDataStr += '{"id":' + data.id + ',"label":"' + data.name + '"}';
+          }
+        },
+        clickTree:function () {
+          let allMenuId = [].concat(this.$refs.trees.getCheckedKeys(), this.$refs.trees.getHalfCheckedKeys());
+          //console.log(allMenuId);
+          this.fuquanForm.menus="";
+          for (let i = 0; i <allMenuId.length ; i++) {
+            this.fuquanForm.menus+=allMenuId[i]+",";
+          }
+          console.log(this.fuquanForm.menus);
+        },
+        fuquanFormSubmit:function () {
+           debugger;
+           if(this.fuquanForm.menus!="" && this.fuquanForm.menus!=null){
+             this.$ajax.post("http://localhost:8083/api/menu/addRoleMenu",this.$qs.stringify(this.fuquanForm)).then(res=>console.log(res)).catch(err=>console.log(err));
+             this.addRoleMenuHtml=false;
+           }else{
+             this.$message.error("请至少选择一个权限");
+           }
         }
-
-
-
 
       }
     }

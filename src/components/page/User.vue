@@ -2,7 +2,7 @@
   <div>
     <h1>用户列表</h1>
     <el-form :inline="true" ref="eachFrom" :model="eachFrom" class="demo-form-inline">
-      <el-form-item label="品牌名称" prop="name">
+      <el-form-item label="用户名称" prop="name">
         <el-input v-model="eachFrom.name"></el-input>
       </el-form-item>
       <el-form-item>
@@ -34,6 +34,8 @@
         <template slot-scope="scope">
           <el-button icon="el-icon-edit"  circle size="mini" type="danger"
                      @click="handleEdit(scope.row)">修改</el-button>
+          <el-button icon="el-icon-edit"  circle size="mini" type="danger"
+                     @click="addUserRole(scope.row)">赋角色</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -116,6 +118,28 @@
     </el-dialog>
 
 
+
+
+
+
+
+    <!--  给用户赋角色模板-------------------->
+    <el-dialog title="用户赋角色"  :visible.sync="addUserRoleHtml">
+      <el-form :model="addUserRoleForm"  ref="updateForm" label-width="100px" class="demo-ruleForm">
+        <el-form-item>
+        <el-checkbox-group  v-model="checkrole">
+          <el-checkbox-button  v-for="b in roleData"    :key="b.id" :label="b.id">{{b.name}}</el-checkbox-button>
+        </el-checkbox-group>
+        </el-form-item>
+
+        <el-form-item>
+
+          <el-button type="primary"   @click="addUserRoles('addUserRoleForm')">赋角色</el-button>
+
+        </el-form-item>
+      </el-form>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -129,7 +153,9 @@
               page:"1",
               limit:"2",
             },
+            checkrole:[],
             userData:[],
+            roleData:[],
             count:0,
             updateHtml:false,
             imagPath:"",
@@ -178,13 +204,23 @@
               value: '4',
               label: '董事会'
             }],
-
+            addUserRoleHtml:false,
+            addUserRoleForm:{
+              uid:"",
+              rid:""
+            }
           }
       },
       created:function () {
         this.queryUserData();
+        this.queryUserRoleData();
       },
       methods:{
+        queryUserRoleData:function(){
+          this.$ajax.get("http://localhost:8083/api/role/selectRole").then(res=>{
+            this.roleData=res.data.data;
+          }).catch(err=>console.log(err))
+        },
         handleSizeChange:function (val) {
           this.eachFrom.limit=val;
           this.queryUserData();
@@ -225,6 +261,27 @@
         },
         forSex:function (a,b,c,d) {
           return c==1?"男":"女";
+        },
+        addUserRole:async function (row) {
+          this.checkrole=[];
+        this.addUserRoleHtml=true;
+        this.addUserRoleForm.uid=row.id;
+         let aa=await this.$ajax.get("http://localhost:8083/api/user/selectUserRoleByUid?uid="+row.id);
+          let che=aa.data.data;
+          for (let i = 0; i <che.length ; i++) {
+            this.checkrole.push(che[i].rid);
+          }
+        },
+        addUserRoles:function () {
+          let rid="";
+          for (let i = 0; i <this.checkrole.length ; i++) {
+            rid+=this.checkrole[i]+",";
+          }
+          this.addUserRoleForm.rid=rid;
+          this.$ajax.post("http://localhost:8083/api/user/addUserRole",this.$qs.stringify(this.addUserRoleForm)).then(res=>{
+            this.addUserRoleHtml=false;
+            this.queryUserData();
+          })
         }
       }
     }
