@@ -57,7 +57,8 @@
         collapse: false,
         items: [],
         userMenuData:[],
-        dataStr:""
+        dataStr:"",
+        openeds:[444]
       };
     },
     computed: {
