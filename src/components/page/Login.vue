@@ -44,6 +44,7 @@
            this.$ajax.post("http://localhost:8083/api/userLogin/toLoginUser",this.$qs.stringify(this.param)).then(res=>{
              if(res.data.data.code==3){
                this.$message.success('登录成功');
+               localStorage.setItem('ms_username', this.param.name);
                this.$router.push('/hello');
              }if(res.data.data.code==2){
                this.$message.error('密码不正确');

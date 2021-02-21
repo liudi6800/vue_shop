@@ -81,10 +81,8 @@
           node-key="id"
           show-checkbox
           ref="trees"
-          check-strictly
           @check="clickTree"
-          :default-expanded-keys="[1]"
-          :default-checked-keys="defCheck"
+          :default-checked-keys="checkedId"
           :expand-on-click-node="false">
         </el-tree>
           <el-form-item>
@@ -131,7 +129,7 @@
               rid:"",
               menus:""
             },
-            defCheck:[]
+            checkedId:[]
 
           }
       },
@@ -189,16 +187,29 @@
           });
         },
         addRoleMenu:function (row) {
+          this.$nextTick(() => {
+            this.$refs.trees.setCheckedKeys([])
+          });
+
           this.addRoleMenuHtml=true;
           this.fuquanForm.rid=row.id;
-          this.defCheck=[];
+
+          debugger;
           this.$ajax.get("http://localhost:8083/api/menu/selectRoleMenuDataByRid?rid="+row.id).then(res => {
-             let datalist = res.data.data;
-             let arr=[];
-            for (let i = 0; i <datalist.length ; i++) {
-              arr.push(datalist[i].mid);
-            }
-            this.defCheck=arr;
+          let aa=res.data.data;
+              let arr=[];
+              for (let i = 0; i <aa.length ; i++) {
+                arr.push(aa[i].mid);
+              }
+              arr.forEach(i => {
+                var node = this.$refs.trees.getNode(i);//根据id 拿到 Tree 组件中的node的所有信息
+                if (node.isLeaf) {//node.isLeaf：判断当前节点是否为子节点
+                  this.$refs.trees.setChecked(node, true);//如果是子节点，就把状态设置成选中
+                }else{
+
+                }
+              })
+
           }).catch(re => {
             console.log(re);
           })

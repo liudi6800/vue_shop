@@ -97,9 +97,6 @@
         <template slot-scope="scope">
           <el-button icon="el-icon-edit"  circle size="mini" type="danger"
                      @click="skuEdit(scope.$index, scope.row)">sku属性</el-button>
-
-          <el-button icon="el-icon-edit"  circle size="mini" type="danger"
-                     @click="noSkuEdit(scope.$index, scope.row)">非sku属性</el-button>
         </template>
       </el-table-column>
 
@@ -198,7 +195,7 @@
 
 
         <el-form-item label="商品类型" prop="typeId"    >
-          <el-select v-model="addForm2.typeId" placeholder="请选择" style="width: 300px"  >
+          <el-select v-model="addForm2.typeId" placeholder="请选择" style="width: 300px" disabled="disabled" >
             <el-option
               v-for="item in shopType"
               :key="item.id"
