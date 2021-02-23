@@ -80,7 +80,7 @@
 
         // alert(name);
         this.$ajax.get("http://localhost:8083/api/userLogin/selectUserMeunData?name="+name).then(res=>{
-          console.log(res.data.data);
+
           this.userMenuData=res.data.data;
           this.initTop();
         }).catch(re=>{

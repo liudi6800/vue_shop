@@ -41,15 +41,21 @@
       submitForm() {
         this.$refs.login.validate(valid => {
           if (valid) {
+
            this.$ajax.post("http://localhost:8083/api/userLogin/toLoginUser",this.$qs.stringify(this.param)).then(res=>{
              if(res.data.data.code==3){
+
                this.$message.success('登录成功');
                localStorage.setItem('ms_username', this.param.name);
+
+               window.sessionStorage.setItem("token",res.data.data.token);
                this.$router.push('/hello');
              }if(res.data.data.code==2){
+
                this.$message.error('密码不正确');
 
              }if(res.data.data.code==1){
+
                this.$message.error('用户不存在');
              }
            }).catch(err=>console.log(err));

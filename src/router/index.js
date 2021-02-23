@@ -24,7 +24,7 @@ export default new Router({
         {
           path: '/shop',
           component: () => import(/* webpackChunkName: "dashboard" */ '../components/page/Shop.vue'),
-          meta: { title: '商品列表' }
+          meta: { title: '商品列表'}
         },
         {
           path: '/addShop',
@@ -44,11 +44,12 @@ export default new Router({
         {
           path: '/shopProperty',
           component: () => import(/* webpackChunkName: "dashboard" */ '../components/page/ShopProperty.vue'),
-          meta: { title: '商品属性' }
+          meta: { title: '商品属性'}
         },{
           path: '/user',
           component: () => import(/* webpackChunkName: "dashboard" */ '../components/page/User.vue'),
-          meta: { title: '用户列表' }
+          meta: { title: '用户列表' // 配置此条，进入页面前判断是否需要登陆
+             }
         },{
           path: '/userMenu',
           component: () => import(/* webpackChunkName: "dashboard" */ '../components/page/UserMenu.vue'),
@@ -56,14 +57,14 @@ export default new Router({
         },{
           path: '/userRole',
           component: () => import(/* webpackChunkName: "dashboard" */ '../components/page/UserRole.vue'),
-          meta: { title: '用户角色' }
+          meta: { title: '用户角色'  }
         },
       ]
     },
     {
       path: '/login',
       component: () => import(/* webpackChunkName: "login" */ '../components/page/Login.vue'),
-      meta: { title: '登录' }
+      meta: { title: '登录'}
     }, {
       path: '/addUser',
       component: () => import(/* webpackChunkName: "login" */ '../components/page/AddUser.vue'),
@@ -72,3 +73,4 @@ export default new Router({
 
   ]
 });
+

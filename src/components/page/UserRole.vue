@@ -3,6 +3,8 @@
 
       <el-button type="primary" @click="addRole">新增角色</el-button>
 
+      <el-button type="primary" @click="adasda">token是</el-button>
+
       <el-table  :data="roleData"  style="width: 100%">
         <el-table-column type="selection" width="55"> </el-table-column>
 
@@ -139,11 +141,12 @@
       },
       methods:{
          queryRoleData(){
+
            this.$ajax.get("http://localhost:8083/api/role/selectRole").then(res=>{
              this.roleData=res.data.data}).catch(err=>console.log(err));
          },
         change:function (row) {
-          debugger;
+
           this.$ajax.delete("http://localhost:8083/api/role/delRole",{
             params:{
               id:row.id,isDel:row.isDel
@@ -265,13 +268,17 @@
           console.log(this.fuquanForm.menus);
         },
         fuquanFormSubmit:function () {
-           debugger;
+
            if(this.fuquanForm.menus!="" && this.fuquanForm.menus!=null){
              this.$ajax.post("http://localhost:8083/api/menu/addRoleMenu",this.$qs.stringify(this.fuquanForm)).then(res=>console.log(res)).catch(err=>console.log(err));
              this.addRoleMenuHtml=false;
            }else{
              this.$message.error("请至少选择一个权限");
            }
+        },
+        adasda:function () {
+          let token=window.sessionStorage.getItem("token");
+          alert(token);
         }
 
       }
